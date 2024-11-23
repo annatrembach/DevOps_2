@@ -1,0 +1,30 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches:
+      - branchMake
+      - branchAutomake
+      - branchAutoPackage
+      - branchAutoTest
+  pull_request:
+    branches:
+      - branchMake
+      - branchAutomake
+      - branchAutoPackage
+      - branchAutoTest
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install dependencies
+      run: sudo apt-get install -y automake autoconf g++ make
+    - name: Generate configure script and Makefile.in
+      run: aclocal && automake --add-missing && autoconf
+    - name: Run configure script
+      run: ./configure
+    - name: Build the project
+      run: make
