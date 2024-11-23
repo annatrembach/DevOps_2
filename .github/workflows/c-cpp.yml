@@ -27,12 +27,6 @@ jobs:
     - name: Generate configure script and Makefile.in
       if: github.ref == 'refs/heads/branchAutomake' || github.ref == 'refs/heads/branchAutoPackage'
       run: aclocal && automake --add-missing && autoconf
-    - name: Check if Makefile.am exists
-      run: |
-        if [ ! -f "Makefile.am" ]; then
-          echo "Error: Makefile.am is missing!"
-          exit 1
-        fi
     - name: Run configure script
       run: ./configure
     - name: Build the project
