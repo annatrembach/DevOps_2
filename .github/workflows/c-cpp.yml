@@ -3,12 +3,14 @@ name: C/C++ CI
 on:
   push:
     branches:
+      - main
       - branchMake
       - branchAutomake
       - branchAutoPackage
       - branchAutoTest
   pull_request:
     branches:
+      - main
       - branchMake
       - branchAutomake
       - branchAutoPackage
