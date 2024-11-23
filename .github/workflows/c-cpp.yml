@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: Build, Test, and Package
 
 on:
   push:
@@ -6,17 +6,30 @@ on:
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
-    branch: ["main"]
+    branch: [ "main" ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: ./configure
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: sudo apt install automake autoconf debhelper g++ make
+
+    - name: Generate configure script
+      run: aclocal && automake --add-missing && autoconf
+
+    - name: Run configure script
       run: ./configure
-    - name: make
+
+    - name: Build the project
       run: make
-    
+
+    - name: Run tests
+      run: make check
+
+    - name: Build the Debian package
+      run: dpkg-buildpackage -us -uc
