@@ -36,6 +36,10 @@ jobs:
       - name: Run funcA server
         run: |
           ./funcA &
+          
+      - name: Wait for server to start
+        run: |
+          sleep 5
 
       - name: Run tests
         run: |
