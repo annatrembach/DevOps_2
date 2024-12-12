@@ -10,9 +10,6 @@ jobs:
     runs-on: ubuntu-latest  
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
       - name: Check if Docker image exists
         run: |
           if ! docker image inspect trembachanna/funcaserver > /dev/null 2>&1; then
@@ -22,19 +19,17 @@ jobs:
             echo "Docker image exists. Skipping pull.";
           fi
 
-      - name: Set up SSH key
+      - name: Start funcA server in Docker container
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H remote-server.com >> ~/.ssh/known_hosts
+          echo "Starting funcA server in Docker container...";
+          docker run -d --name funcaserver -p 8081:8081 trembachanna/funcaserver
 
-      - name: Start funcA server on remote server
+      - name: Run tests locally in Docker container
         run: |
-          echo "Starting funcA server on remote machine...";
-          ssh user@remote-server './funcA &'
+          echo "Running tests in Docker container...";
+          docker run --rm -v $(pwd):/workspace -w /workspace g++ -o main tests/main.cpp && ./main
 
-      - name: Run tests on remote server
+      - name: Stop funcA server container
         run: |
-          echo "Running tests on remote server...";
-          ssh user@remote-server 'g++ -o main tests/main.cpp && ./main'
+          echo "Stopping funcA server container...";
+          docker stop funcaserver
