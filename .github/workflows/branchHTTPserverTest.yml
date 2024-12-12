@@ -1,3 +1,5 @@
+name: FuncA Server Test Workflow
+
 on:
   push:
     branches:
@@ -11,32 +13,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Install autotools
         run: |
           sudo apt-get update
           sudo apt-get install -y autoconf automake libtool
+
       - name: Run autoreconf
         run: |
           autoreconf --install
+
       - name: Run ./configure
         run: |
           ./configure
+
       - name: Build funcA server
         run: |
-          make 
+          make
+
       - name: Run funcA server
         run: |
-          ./funcA &  
+          ./funcA &
+
       - name: Run tests
         run: |
-          g++ tests/main.cpp -o tests/main.cpp
-          ./tests/main.cpp
+          g++ tests/main.cpp -o tests/main.out
+          ./tests/main.out
+
       - name: Check Docker image trembachanna/funcaserver
         run: |
           docker pull trembachanna/funcaserver
           docker run -d --name funcA-check trembachanna/funcaserver
           docker ps -a
+
       - name: Stop server and containers
         run: |
           pkill funcA
