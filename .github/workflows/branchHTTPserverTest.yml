@@ -1,5 +1,3 @@
-name: FuncA Server Test Workflow
-
 on:
   push:
     branches:
@@ -35,8 +33,8 @@ jobs:
           ./funcA &  
       - name: Run tests
         run: |
-          g++ tests/main.cpp -o tests/main.out
-          ./tests/main.out
+          g++ tests/main.cpp -o tests/main.cpp
+          ./tests/main.cpp
       - name: Check Docker image trembachanna/funcaserver
         run: |
           docker pull trembachanna/funcaserver
@@ -44,8 +42,6 @@ jobs:
           docker ps -a
       - name: Stop server and containers
         run: |
-          # Завершення роботи сервера funcA
           pkill funcA
-          # Зупинка та видалення контейнерів Docker
           docker stop funcA-check
           docker rm funcA-check
