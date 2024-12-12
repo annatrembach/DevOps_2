@@ -1,0 +1,25 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - branchHTTPserver
+  pull_request:
+    branches:
+      - branchHTTPserver
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: QEMU install
+      uses: docker/setup-qemu-action@v3
+    - name: Install Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: build ls
+      run: docker buildx ls
+    - name: Log in to dockerhub
+      run: docker login -u ${{ vars.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_TOKEN }}
+    - name: Build Dockerfile image
+      run: docker build --platform=linux/amd64 -t trembachanna/funcaserver --push .
