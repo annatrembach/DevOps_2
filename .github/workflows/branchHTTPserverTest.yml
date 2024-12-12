@@ -43,7 +43,7 @@ jobs:
 
       - name: Run tests
         run: |
-          g++ tests/main.cpp -o tests/main.out
+          g++ tests/main.cpp -o tests/main.out -I/usr/include/curl -L/usr/lib/x86_64-linux-gnu -lcurl
           ./tests/main.out
 
       - name: Check Docker image trembachanna/funcaserver
