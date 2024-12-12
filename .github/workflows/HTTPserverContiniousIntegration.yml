@@ -24,10 +24,10 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_TOKEN }}
-    - name: Build Dockerfile image(amd64)
-      run: docker build --platform=linux/amd64 -t trembachanna/funcaserver:amd64 --push .
+    - name: Build Dockerfile image (amd64)
+      run: docker build --platform linux/amd64 -t trembachanna/funcaserver:amd64 --push -f funcAimages/Dockerfile .
     - name: Build Dockerfile image(arm64)
-      run: docker build --platform=linux/arm64 -t trembachanna/funcaserver:arm64 --push .
+      run: docker build --platform=linux/arm64 -t trembachanna/funcaserver:arm64 --push -f funcAimages/Dockerfile .
     - name: Manifest
       run: docker manifest create trembachanna/funcaserver --amend trembachanna/funcaserver:amd64 --amend trembachanna/funcaserver:arm64
     - name: Push manifest
