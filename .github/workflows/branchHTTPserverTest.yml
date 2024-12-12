@@ -1,34 +1,51 @@
+name: FuncA Server Test Workflow
+
 on:
   push:
     branches:
-      - branchHTTPserver  
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  test:
-    runs-on: ubuntu-latest  
+  build-and-test:
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Check if Docker image exists
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up C++ environment
+        uses: actions/setup-cpp@v1
+      - name: Install autotools
         run: |
-          if ! docker image inspect trembachanna/funcaserver > /dev/null 2>&1; then
-            echo "Docker image does not exist. Pulling image...";
-            docker pull trembachanna/funcaserver;
-          else
-            echo "Docker image exists. Skipping pull.";
-          fi
-
-      - name: Run funcA server container
+          sudo apt-get update
+          sudo apt-get install -y autoconf automake libtool
+      - name: Run autoreconf
         run: |
-          docker run -d -p 8081:8081 trembachanna/funcaserver
-          echo "Server is running..."
-
-      - name: Wait for server to start
+          autoreconf --install
+      - name: Run ./configure
         run: |
-          echo "Waiting for the server to be ready..."
-          sleep 5 
-
-      - name: Run tests on the running server
+          ./configure
+      - name: Build funcA server
         run: |
-          echo "Running tests..."
-          curl http://127.0.0.1:8081/trigvalues
-          g++ -o main tests/main.cpp && ./main
+          make 
+      - name: Run funcA server
+        run: |
+          ./funcA &  
+      - name: Run tests
+        run: |
+          g++ tests/main.cpp -o tests/main.out
+          ./tests/main.out
+      - name: Check Docker image trembachanna/funcaserver
+        run: |
+          docker pull trembachanna/funcaserver
+          docker run -d --name funcA-check trembachanna/funcaserver
+          docker ps -a
+      - name: Stop server and containers
+        run: |
+          # Завершення роботи сервера funcA
+          pkill funcA
+          # Зупинка та видалення контейнерів Docker
+          docker stop funcA-check
+          docker rm funcA-check
