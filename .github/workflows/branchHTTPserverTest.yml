@@ -3,7 +3,7 @@ name: Test Server Response Time
 on:
   push:
     branches:
-      - branchHTTPserver 
+      - branchHTTPserver  
 
 jobs:
   test:
@@ -12,11 +12,29 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
-      - name: Pull Docker Image
-        run: docker pull trembachanna/funcaserver
-      - name: Run tests inside Docker container
+
+      - name: Check if Docker image exists
         run: |
-          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace trembachanna/funcaserver \
-          g++ -o main tests/main.cpp && ./main
+          if ! docker image inspect trembachanna/funcaserver > /dev/null 2>&1; then
+            echo "Docker image does not exist. Pulling image...";
+            docker pull trembachanna/funcaserver;
+          else
+            echo "Docker image exists. Skipping pull.";
+          fi
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H remote-server.com >> ~/.ssh/known_hosts
+
+      - name: Start funcA server on remote server
+        run: |
+          echo "Starting funcA server on remote machine...";
+          ssh user@remote-server './funcA &'
+
+      - name: Run tests on remote server
+        run: |
+          echo "Running tests on remote server...";
+          ssh user@remote-server 'g++ -o main tests/main.cpp && ./main'
