@@ -19,8 +19,11 @@ jobs:
       uses: docker/setup-buildx-action@v1
     - name: build ls
       run: docker buildx ls
-    - name: Log in to dockerhub
-      run: docker login -u ${{ vars.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_TOKEN }}
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN }}
     - name: Build Dockerfile image(amd64)
       run: docker build --platform=linux/amd64 -t trembachanna/funcaserver:amd64 --push .
     - name: Build Dockerfile image(arm64)
