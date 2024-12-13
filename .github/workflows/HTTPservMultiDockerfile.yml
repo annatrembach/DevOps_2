@@ -22,7 +22,3 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -f funcAimages/Dockerfile -t trembachanna/funcaserver .
-        
-      - name: Run Docker container
-        run: |
-          docker run --rm trembachanna/funcaserver --version
